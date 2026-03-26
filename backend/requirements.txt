@@ -2,7 +2,7 @@ fastapi
 uvicorn
 sqlalchemy
 mysql-connector-python
-openai
 python-dotenv
 python-multipart
 openai-whisper
+google-generativeai
