@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from auth import router as auth_router
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
 import models
@@ -16,6 +18,16 @@ load_dotenv()
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 # Load the local Whisper model (we use 'base' for a good balance of speed and accuracy during development)
 whisper_model = whisper.load_model("base")

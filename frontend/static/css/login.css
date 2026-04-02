@@ -401,7 +401,7 @@ html, body {
 .pw-bar.weak   { background: #E53E3E; }
 .pw-bar.fair   { background: #F6AD55; }
 .pw-bar.good   { background: #48BB78; }
-.pw-bar.strong { background: #1A4731; }
+.pw-bar.strong { background: #00C853; }
 
 .pw-strength-label {
   font-size: 11px;

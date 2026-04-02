@@ -54,7 +54,7 @@ function checkStrength(pw) {
 
   const levels = ['', 'weak',    'fair',    'good',    'strong'];
   const names  = ['', 'Weak',    'Fair',    'Good',    'Strong'];
-  const colors = ['', '#E53E3E', '#F6AD55', '#48BB78', '#1A4731'];
+  const colors = ['', '#E53E3E', '#F6AD55', '#48BB78', '#00C853'];
 
   for (let i = 0; i < score; i++) bars[i].classList.add(levels[score]);
   label.textContent = score > 0 ? names[score] : '';
@@ -66,7 +66,7 @@ function selectRole(radio) {
   document.querySelectorAll('#panel-register .role-opt').forEach(o => o.classList.remove('selected'));
   radio.closest('.role-opt').classList.add('selected');
   document.getElementById('teacher-notice')
-    .classList.toggle('show', radio.value === 'teacher' || radio.value === 'admin');
+    .classList.toggle('show', radio.value === 'teacher');
 }
 
 function selectLoginRole(radio) {
@@ -104,6 +104,7 @@ function _showAlert(alertId, msgId, message) {
 async function handleLogin() {
   const email    = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
+  const role     = document.querySelector('input[name="login-role"]:checked').value;
 
   _clearErrs('login-email-err', 'login-pw-err');
   document.getElementById('login-alert').classList.remove('show');
@@ -119,7 +120,7 @@ async function handleLogin() {
     const res  = await fetch(`${Auth.API_BASE}/auth/login`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password }),
+      body:    JSON.stringify({ email, password, role }),
     });
 
     const data = await res.json();

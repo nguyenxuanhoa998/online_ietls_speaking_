@@ -6,3 +6,6 @@ python-dotenv
 python-multipart
 openai-whisper
 google-generativeai
+passlib[bcrypt]
+PyJWT
+email-validator
