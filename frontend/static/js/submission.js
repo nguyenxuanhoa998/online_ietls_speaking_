@@ -92,6 +92,7 @@ const PARTS = {
     document.getElementById('nav-avatar').textContent = initials;
   }
   selectPart('part1');
+  loadRecentSubmissions();
 })();
 
 /* ── Part selection ────────────────────────────────────────────── */
@@ -266,8 +267,12 @@ async function submitEvaluation() {
     const formData = new FormData();
     const filename = audioBlob instanceof File ? audioBlob.name : 'recording.webm';
     formData.append('file', audioBlob, filename);
+    formData.append('part', currentPart);
+    if (currentQuestion && currentQuestion.text) {
+      formData.append('question_text', currentQuestion.text);
+    }
 
-    const res = await fetch(`${Auth.API_BASE}/v1/evaluate_audio`, {
+    const res = await fetch(`${Auth.API_BASE}/v1/submissions`, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${Auth.getToken()}` },
       body:    formData,
@@ -275,6 +280,7 @@ async function submitEvaluation() {
 
     if (res.ok) {
       _setRecordState('submitted');
+      loadRecentSubmissions(); // refresh list
     } else {
       const data = await res.json().catch(() => ({}));
       alert('Submission failed: ' + (data.detail || 'Unknown error'));
@@ -311,3 +317,59 @@ function submitAnother() {
   _updateChecklist(false);
   loadNewQuestion();
 }
+
+/* ── Fetch recent submissions ──────────────────────────────────── */
+async function loadRecentSubmissions() {
+  try {
+    const res = await fetch(`${Auth.API_BASE}/v1/submissions`, {
+      headers: { 'Authorization': `Bearer ${Auth.getToken()}` },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    const listEl = document.querySelector('.recent-list');
+    if (!listEl) return;
+    
+    if (data.length === 0) {
+      listEl.innerHTML = '<div style="color:#64748b; font-size:14px; text-align:center; padding:10px;">No recent submissions.</div>';
+      return;
+    }
+    
+    // Take top 4 max
+    const recent = data.slice(0, 4);
+    listEl.innerHTML = recent.map(sub => {
+      const dateStr = new Date(sub.submitted_at).toLocaleDateString('en-GB');
+      let statusBadge = '';
+      let scoreBadge = '';
+      
+      const isEvaluated = ['ai_evaluated', 'reviewed'].includes(sub.status) || sub.score !== null;
+      
+      if (isEvaluated) {
+        const score = sub.score !== null ? sub.score : '-';
+        scoreBadge = `<span class="recent-score">${score}</span>`;
+        statusBadge = `<span class="badge badge-reviewed">Reviewed</span>`;
+      } else {
+        statusBadge = `<span class="badge badge-pending">Pending</span>`;
+      }
+      
+      let partDisplay = sub.part;
+      if (sub.part === 'part1') partDisplay = 'Part 1';
+      else if (sub.part === 'part2') partDisplay = 'Part 2';
+      else if (sub.part === 'part3') partDisplay = 'Part 3';
+      
+      return `
+        <div class="recent-item">
+            <div class="recent-meta">
+                <span class="recent-id">#${sub.id}</span>
+                <span class="recent-part">${partDisplay || 'Part ?'}</span>
+                <div class="recent-date">${dateStr}</div>
+            </div>
+            ${scoreBadge ? `<div class="recent-score-wrap">${scoreBadge}${statusBadge}</div>` : statusBadge}
+        </div>
+      `;
+    }).join('');
+    
+  } catch (err) {
+    console.error('Error loading recent submissions', err);
+  }
+}
