@@ -235,7 +235,8 @@ def get_submissions(db: Session = Depends(get_db), current_user: models.User = D
     """
     query = db.query(models.Submission).options(
         joinedload(models.Submission.question),
-        joinedload(models.Submission.ai_evaluation)
+        joinedload(models.Submission.ai_evaluation),
+        joinedload(models.Submission.teacher_review)
     )
     
     if current_user.role == "student":
@@ -245,14 +246,19 @@ def get_submissions(db: Session = Depends(get_db), current_user: models.User = D
     
     results = []
     for sub in submissions:
-        overall_score = sub.ai_evaluation.overall_score if sub.ai_evaluation else None
+        ai_score = sub.ai_evaluation.overall_score if sub.ai_evaluation else None
+        teacher_score = sub.teacher_review.final_overall_score if sub.teacher_review else None
+        overall_score = teacher_score if teacher_score is not None else ai_score
+        
         results.append({
             "id": sub.id,
             "question": sub.question.question_text if sub.question else None,
             "part": sub.question.part if sub.question else None,
             "status": sub.status,
             "submitted_at": sub.submitted_at,
-            "ai_overall_score": overall_score,
+            "score": overall_score,
+            "ai_overall_score": ai_score,
+            "teacher_overall_score": teacher_score,
             "audio_file_path": f"/{sub.audio_file_path}"
         })
         
