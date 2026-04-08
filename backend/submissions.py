@@ -1,4 +1,6 @@
 import os
+import time
+
 import shutil
 import uuid
 import json
@@ -17,14 +19,12 @@ from ml_models import whisper_model
 
 router = APIRouter()
 
-# Setup GenAI config safely if possible here or expect it in route
-# It's better to configure it inside the route if API key might change, or just once if it's static.
-def get_gemini_model():
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="Gemini API key is missing.")
+api_key = os.getenv("GEMINI_API_KEY")
+if api_key:
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel('gemini-2.5-flash')
+
+def get_gemini_model():
+    return genai.GenerativeModel('models/gemini-2.5-flash')
 
 
 class QuestionResponse(BaseModel):
@@ -195,12 +195,33 @@ Return ONLY valid JSON (no explanation outside JSON):
     "actionable suggestion 3"
   ]
 }}"""
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.GenerationConfig(
-                response_mime_type="application/json",
-            )
-        )
+        print(">>> [DEBUG] CALLING GEMINI API FOR EVALUATION (1 REQUEST)")
+        
+        # Retry logic for 429
+        max_retries = 3
+        retry_delay = 5 # seconds
+        response = None
+        
+        for i in range(max_retries):
+            try:
+                response = model.generate_content(
+                    prompt,
+                    generation_config=genai.GenerationConfig(
+                        response_mime_type="application/json",
+                    )
+                )
+                break # Success
+            except Exception as e:
+                if "429" in str(e) and i < max_retries - 1:
+                    print(f">>> [DEBUG] Rate limited (429). Retrying in {retry_delay}s... (Attempt {i+1}/{max_retries})")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2 # Exponential backoff
+                else:
+                    raise e
+
+        if not response:
+            raise HTTPException(status_code=500, detail="Failed to get response from Gemini after retries")
+            
         evaluation_result = json.loads(response.text)
         
         # 6. Save Evaluation

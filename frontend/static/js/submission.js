@@ -358,7 +358,7 @@ async function loadRecentSubmissions() {
       else if (sub.part === 'part3') partDisplay = 'Part 3';
       
       return `
-        <div class="recent-item">
+        <div class="recent-item" style="cursor:pointer;" onclick="window.location.href='/result.html?id=${sub.id}'" title="View details">
             <div class="recent-meta">
                 <span class="recent-id">#${sub.id}</span>
                 <span class="recent-part">${partDisplay || 'Part ?'}</span>

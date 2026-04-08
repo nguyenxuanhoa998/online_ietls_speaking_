@@ -75,7 +75,7 @@ async function loadRecentSubmissions() {
                 const scoreDisplay = sub.score !== null ? sub.score : '—';
                 
                 return `
-                    <tr>
+                    <tr onclick="window.location.href='/result.html?id=${sub.id}'" style="cursor: pointer;" title="View details">
                         <td class="td-id">${sub.id}</td>
                         <td class="td-question">${sub.question || 'Custom Question'}</td>
                         <td><span class="part-badge">${partDisplay}</span></td>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Speaking AI — Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/result.css">
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="nav-left">
+        <div class="nav-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a5 5 0 015 5v2H7V7a5 5 0 015-5z"/>
+                <rect x="3" y="9" width="18" height="13" rx="2"/>
+                <circle cx="12" cy="15.5" r="1.5" fill="white" stroke="none"/>
+            </svg>
+        </div>
+        <span class="nav-brand">IELTS Speaking AI</span>
+    </div>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/submission.html">New submission</a>
+        <a class="nav-link active">My results</a>
+    </div>
+    <div class="nav-right">
+        <div class="nav-avatar" id="nav-avatar">NK</div>
+        <span class="nav-name" id="nav-name">User</span>
+        <button class="nav-logout" onclick="Auth.logout()" title="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+        </button>
+    </div>
+</nav>
+
+<!-- ── PAGE CONTENT ── -->
+<div class="page">
+    <div class="header-nav">
+        <a href="/dashboard.html" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="loading-state hidden" id="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading submission data...</p>
+    </div>
+
+    <!-- PENDING STATE -->
+    <div class="pending-state hidden" id="pending-state">
+        <div class="pending-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <h2>Evaluation in progress...</h2>
+        <p>Your submission has been received. Our AI is currently analyzing your response.</p>
+        <p class="pending-sub">This usually takes about 1-2 minutes. Please check back shortly.</p>
+        <button class="btn btn-outline" onclick="window.location.reload()">Refresh Page</button>
+    </div>
+
+    <!-- RESULT MAIN CONTENT -->
+    <div class="result-content hidden" id="result-content">
+        <!-- Header Information -->
+        <div class="submission-info card">
+            <div class="info-top">
+                <div>
+                    <div class="part-badge" id="res-part">Part 1</div>
+                    <div class="date-text" id="res-date">Submitted on ...</div>
+                </div>
+                <div class="status-badge" id="res-status">Evaluated</div>
+            </div>
+            <h2 class="question-text" id="res-question">"Question text here..."</h2>
+        </div>
+
+        <!-- Score Overview (Top) -->
+        <div class="score-overview">
+            <div class="overall-band card">
+                <h3>Overall Band Score</h3>
+                <div class="main-score-wrap">
+                    <div class="main-score" id="overall-score">0.0</div>
+                    <div class="band-descriptor" id="overall-descriptor">Loading...</div>
+                </div>
+            </div>
+            <div class="component-scores card">
+                <div class="circle-group" id="score-fc">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <text x="18" y="20.35" class="percentage">0</text>
+                    </svg>
+                    <span class="label">Fluency & Coherence</span>
+                </div>
+                
+                <div class="circle-group" id="score-lr">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <text x="18" y="20.35" class="percentage">0</text>
+                    </svg>
+                    <span class="label">Lexical Resource</span>
+                </div>
+
+                <div class="circle-group" id="score-gr">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <text x="18" y="20.35" class="percentage">0</text>
+                    </svg>
+                    <span class="label">Grammatical Range</span>
+                </div>
+
+                <div class="circle-group" id="score-pr">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <text x="18" y="20.35" class="percentage">0</text>
+                    </svg>
+                    <span class="label">Pronunciation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Criteria Breakdown -->
+        <div class="criteria-details">
+            <div class="criteria-card card" id="detail-fc">
+                <div class="criteria-header">
+                    <span class="criteria-name">Fluency & Coherence</span>
+                    <span class="criteria-score" id="score-fc-val">0.0</span>
+                </div>
+                <div class="criteria-body">
+                    <div class="c-section">
+                        <label>Strengths</label>
+                        <p class="c-text strength" id="fc-strengths">...</p>
+                    </div>
+                    <div class="c-section">
+                        <label>Weaknesses</label>
+                        <p class="c-text weakness" id="fc-weaknesses">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="criteria-card card" id="detail-lr">
+                <div class="criteria-header">
+                    <span class="criteria-name">Lexical Resource</span>
+                    <span class="criteria-score" id="score-lr-val">0.0</span>
+                </div>
+                <div class="criteria-body">
+                    <div class="c-section">
+                        <label>Strengths</label>
+                        <p class="c-text strength" id="lr-strengths">...</p>
+                    </div>
+                    <div class="c-section">
+                        <label>Weaknesses</label>
+                        <p class="c-text weakness" id="lr-weaknesses">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="criteria-card card" id="detail-gr">
+                <div class="criteria-header">
+                    <span class="criteria-name">Grammatical Range</span>
+                    <span class="criteria-score" id="score-gr-val">0.0</span>
+                </div>
+                <div class="criteria-body">
+                    <div class="c-section">
+                        <label>Strengths</label>
+                        <p class="c-text strength" id="gr-strengths">...</p>
+                    </div>
+                    <div class="c-section">
+                        <label>Weaknesses</label>
+                        <p class="c-text weakness" id="gr-weaknesses">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="criteria-card card" id="detail-pr">
+                <div class="criteria-header">
+                    <span class="criteria-name">Pronunciation</span>
+                    <span class="criteria-score" id="score-pr-val">0.0</span>
+                </div>
+                <div class="criteria-body">
+                    <div class="c-section">
+                        <label>Feedback</label>
+                        <p class="c-text strength" id="pr-feedback">...</p>
+                    </div>
+                    <div class="c-section hidden" id="pr-weakness-wrap">
+                        <label>Weaknesses</label>
+                        <p class="c-text weakness" id="pr-weaknesses">...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 2 Column Layout -->
+        <div class="layout-2col">
+            <!-- Left Column: Audio + Transcript -->
+            <div class="left-col card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                    Your Answer
+                </div>
+                
+                <div class="audio-wrap">
+                    <audio id="res-audio" controls class="custom-audio">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+
+                <div class="transcript-box">
+                    <h4>Transcript</h4>
+                    <p id="res-transcript" class="transcript-text">Loading transcript...</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Feedback -->
+            <div class="right-col card details-card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Detailed Feedback
+                </div>
+                
+                <div class="feedback-section">
+                    <h4 class="mistake-title">Key Mistakes</h4>
+                    <ul class="feedback-list mistake-list" id="res-mistakes">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+
+                <div class="feedback-section mt-4">
+                    <h4 class="suggestion-title">Suggestions for Improvement</h4>
+                    <ul class="feedback-list suggestion-list" id="res-suggestions">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="static/js/auth.js"></script>
+<script src="static/js/result.js"></script>
+</body>
+</html>
