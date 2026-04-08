@@ -17,4 +17,4 @@ Thumbs.db
 *.bat
 
 #upload
-uploads/*
+backend/uploads/
