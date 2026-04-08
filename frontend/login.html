@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,188 +7,180 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="static/css/login.css">
 </head>
-
 <body>
 
-  <div class="page">
-    <div class="card">
+<div class="page">
+  <div class="card">
 
-      <!-- Logo -->
-      <div class="logo-wrap">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M12 2a5 5 0 015 5v2H7V7a5 5 0 015-5z" />
-            <rect x="3" y="9" width="18" height="13" rx="2" />
-            <circle cx="12" cy="15.5" r="1.5" fill="white" stroke="none" />
-          </svg>
-        </div>
-        <div class="logo-title">IELTS Speaking AI</div>
-        <div class="logo-sub" id="logo-sub">Evaluation Platform</div>
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a5 5 0 015 5v2H7V7a5 5 0 015-5z"/>
+          <rect x="3" y="9" width="18" height="13" rx="2"/>
+          <circle cx="12" cy="15.5" r="1.5" fill="white" stroke="none"/>
+        </svg>
+      </div>
+      <div class="logo-title">IELTS Speaking AI</div>
+      <div class="logo-sub" id="logo-sub">Evaluation Platform</div>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="tabs">
+      <div class="tab active" id="tab-login"    onclick="switchTab('login')">Login</div>
+      <div class="tab"        id="tab-register" onclick="switchTab('register')">Register</div>
+    </div>
+
+    <!-- ── LOGIN PANEL ── -->
+    <div class="panel active" id="panel-login">
+
+      <div class="alert error" id="login-alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="login-alert-msg">Invalid email or password.</span>
       </div>
 
-      <!-- Tab switcher -->
-      <div class="tabs">
-        <div class="tab active" id="tab-login" onclick="switchTab('login')">Login</div>
-        <div class="tab" id="tab-register" onclick="switchTab('register')">Register</div>
+      <!-- Login as -->
+      <div class="field">
+        <label>Login as</label>
+        <div class="role-grid">
+          <label class="role-opt selected" id="login-opt-student">
+            <input type="radio" name="login-role" value="student" checked onchange="selectLoginRole(this)">
+            <div class="role-opt-label">Student</div>
+          </label>
+          <label class="role-opt" id="login-opt-teacher">
+            <input type="radio" name="login-role" value="teacher" onchange="selectLoginRole(this)">
+            <div class="role-opt-label">Teacher</div>
+          </label>
+          <label class="role-opt" id="login-opt-admin">
+            <input type="radio" name="login-role" value="admin" onchange="selectLoginRole(this)">
+            <div class="role-opt-label">Admin</div>
+          </label>
+        </div>
       </div>
 
-      <!-- ── LOGIN PANEL ── -->
-      <div class="panel active" id="panel-login">
-
-        <div class="alert error" id="login-alert">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <span id="login-alert-msg">Invalid email or password.</span>
-        </div>
-
-        <!-- Login as -->
-        <div class="field">
-          <label>Login as</label>
-          <div class="role-grid">
-            <label class="role-opt selected" id="login-opt-student">
-              <input type="radio" name="login-role" value="student" checked onchange="selectLoginRole(this)">
-              <div class="role-opt-label">Student</div>
-            </label>
-            <label class="role-opt" id="login-opt-teacher">
-              <input type="radio" name="login-role" value="teacher" onchange="selectLoginRole(this)">
-              <div class="role-opt-label">Teacher</div>
-            </label>
-            <label class="role-opt" id="login-opt-admin">
-              <input type="radio" name="login-role" value="admin" onchange="selectLoginRole(this)">
-              <div class="role-opt-label">Admin</div>
-            </label>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="login-email">Email address</label>
-          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
-          <div class="field-err" id="login-email-err">Please enter a valid email.</div>
-        </div>
-
-        <div class="field">
-          <label for="login-password">Password</label>
-          <div class="pw-wrap">
-            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-            <button type="button" class="pw-toggle" onclick="togglePw('login-password', this)"
-              aria-label="Show password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            </button>
-          </div>
-          <div class="field-err" id="login-pw-err">Password is required.</div>
-        </div>
-
-        <a class="forgot">Forgot password?</a>
-
-        <button class="btn btn-primary" id="login-btn" onclick="handleLogin()">
-          <span class="btn-text">Login</span>
-          <div class="spinner"></div>
-        </button>
-
-        <div class="footer-link">
-          Don't have an account? <span onclick="switchTab('register')">Register here</span>
-        </div>
-
+      <div class="field">
+        <label for="login-email">Email address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+        <div class="field-err" id="login-email-err">Please enter a valid email.</div>
       </div>
 
-      <!-- ── REGISTER PANEL ── -->
-      <div class="panel" id="panel-register">
-
-        <div class="alert error" id="reg-alert">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <span id="reg-alert-msg">Registration failed. Please try again.</span>
+      <div class="field">
+        <label for="login-password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="pw-toggle" onclick="togglePw('login-password', this)" aria-label="Show password">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
         </div>
+        <div class="field-err" id="login-pw-err">Password is required.</div>
+      </div>
 
-        <div class="alert success" id="reg-success">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11" />
-          </svg>
-          <span id="reg-success-msg">Account created! Redirecting to login...</span>
-        </div>
+      <a class="forgot">Forgot password?</a>
 
-        <!-- Register as -->
-        <div class="field">
-          <label>Register as</label>
-          <div class="role-grid">
-            <label class="role-opt selected" id="opt-student">
-              <input type="radio" name="role" value="student" checked onchange="selectRole(this)">
-              <div class="role-opt-label">Student</div>
-            </label>
-            <label class="role-opt" id="opt-teacher">
-              <input type="radio" name="role" value="teacher" onchange="selectRole(this)">
-              <div class="role-opt-label">Teacher</div>
-            </label>
-          </div>
-        </div>
+      <button class="btn btn-primary" id="login-btn" onclick="handleLogin()">
+        <span class="btn-text">Login</span>
+        <div class="spinner"></div>
+      </button>
 
-        <!-- Notice: teacher -->
-        <div class="notice" id="teacher-notice">
-          Teacher accounts require admin approval before you can log in.
-        </div>
-
-        <div class="field">
-          <label for="reg-name">Full name</label>
-          <input type="text" id="reg-name" placeholder="Nguyễn Văn A" autocomplete="name">
-          <div class="field-err" id="reg-name-err">Full name is required.</div>
-        </div>
-
-        <div class="field">
-          <label for="reg-email">Email address</label>
-          <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
-          <div class="field-err" id="reg-email-err">Please enter a valid email.</div>
-        </div>
-
-        <div class="field">
-          <label for="reg-password">Password</label>
-          <div class="pw-wrap">
-            <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password"
-              oninput="checkStrength(this.value)">
-            <button type="button" class="pw-toggle" onclick="togglePw('reg-password', this)" aria-label="Show password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            </button>
-          </div>
-          <div class="pw-strength">
-            <div class="pw-bar" id="bar-1"></div>
-            <div class="pw-bar" id="bar-2"></div>
-            <div class="pw-bar" id="bar-3"></div>
-            <div class="pw-bar" id="bar-4"></div>
-          </div>
-          <div class="pw-strength-label" id="pw-label"></div>
-          <div class="field-err" id="reg-pw-err">Password must be at least 8 characters.</div>
-        </div>
-
-        <button class="btn btn-primary" id="reg-btn" onclick="handleRegister()">
-          <span class="btn-text">Create account</span>
-          <div class="spinner"></div>
-        </button>
-
-        <div class="footer-link">
-          Already have an account? <span onclick="switchTab('login')">Login</span>
-        </div>
-
+      <div class="footer-link">
+        Don't have an account? <span onclick="switchTab('register')">Register here</span>
       </div>
 
     </div>
-  </div>
 
-  <script src="static/js/auth.js"></script>
-  <script src="static/js/login.js"></script>
+    <!-- ── REGISTER PANEL ── -->
+    <div class="panel" id="panel-register">
+
+      <div class="alert error" id="reg-alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="reg-alert-msg">Registration failed. Please try again.</span>
+      </div>
+
+      <div class="alert success" id="reg-success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11"/>
+        </svg>
+        <span id="reg-success-msg">Account created! Redirecting to login...</span>
+      </div>
+
+      <!-- Register as -->
+      <div class="field">
+        <label>Register as</label>
+        <div class="role-grid">
+          <label class="role-opt selected" id="opt-student">
+            <input type="radio" name="role" value="student" checked onchange="selectRole(this)">
+            <div class="role-opt-label">Student</div>
+          </label>
+          <label class="role-opt" id="opt-teacher">
+            <input type="radio" name="role" value="teacher" onchange="selectRole(this)">
+            <div class="role-opt-label">Teacher</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Notice: teacher -->
+      <div class="notice" id="teacher-notice">
+        Teacher accounts require admin approval before you can log in.
+      </div>
+
+      <div class="field">
+        <label for="reg-name">Full name</label>
+        <input type="text" id="reg-name" placeholder="Nguyễn Văn A" autocomplete="name">
+        <div class="field-err" id="reg-name-err">Full name is required.</div>
+      </div>
+
+      <div class="field">
+        <label for="reg-email">Email address</label>
+        <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
+        <div class="field-err" id="reg-email-err">Please enter a valid email.</div>
+      </div>
+
+      <div class="field">
+        <label for="reg-password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="reg-password" placeholder="••••••••"
+                 autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button type="button" class="pw-toggle" onclick="togglePw('reg-password', this)" aria-label="Show password">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pw-strength">
+          <div class="pw-bar" id="bar-1"></div>
+          <div class="pw-bar" id="bar-2"></div>
+          <div class="pw-bar" id="bar-3"></div>
+          <div class="pw-bar" id="bar-4"></div>
+        </div>
+        <div class="pw-strength-label" id="pw-label"></div>
+        <div class="field-err" id="reg-pw-err">Password must be at least 8 characters.</div>
+      </div>
+
+      <button class="btn btn-primary" id="reg-btn" onclick="handleRegister()">
+        <span class="btn-text">Create account</span>
+        <div class="spinner"></div>
+      </button>
+
+      <div class="footer-link">
+        Already have an account? <span onclick="switchTab('login')">Login</span>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script src="static/js/auth.js"></script>
+<script src="static/js/login.js"></script>
 
 </body>
-
 </html>

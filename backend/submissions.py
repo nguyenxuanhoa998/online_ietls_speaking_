@@ -295,3 +295,39 @@ def get_submission_detail(submission_id: int, db: Session = Depends(get_db), cur
         "submitted_at": submission.submitted_at,
         "ai_evaluation": submission.ai_evaluation.raw_llm_response if submission.ai_evaluation else None
     }
+
+@router.get("/dashboard/summary")
+def get_dashboard_summary(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """
+    Get summary stats for the student dashboard.
+    """
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Not authorized")
+         
+    submissions = db.query(models.Submission).options(
+        joinedload(models.Submission.ai_evaluation),
+        joinedload(models.Submission.teacher_review)
+    ).filter(models.Submission.user_id == current_user.id).all()
+    
+    total_submissions = len(submissions)
+    
+    pending_statuses = ['pending', 'transcribed', 'ai_evaluated']
+    pending_review = sum(1 for s in submissions if s.status in pending_statuses and not s.teacher_review)
+    reviewed = sum(1 for s in submissions if s.status == 'completed' or s.teacher_review) 
+    
+    # avg overall band
+    scores = []
+    for sub in submissions:
+        if sub.teacher_review and sub.teacher_review.final_overall_score is not None:
+             scores.append(float(sub.teacher_review.final_overall_score))
+        elif sub.ai_evaluation and sub.ai_evaluation.overall_score is not None:
+             scores.append(float(sub.ai_evaluation.overall_score))
+             
+    avg_overall_band = round(sum(scores) / len(scores), 1) if scores else 0.0
+
+    return {
+         "total_submissions": total_submissions,
+         "avg_overall_band": avg_overall_band,
+         "pending_review": pending_review,
+         "reviewed": reviewed
+    }
