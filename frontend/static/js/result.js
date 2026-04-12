@@ -33,7 +33,7 @@ async function loadResult(id) {
         const res = await fetch(`${Auth.API_BASE}/v1/submissions/${id}`, {
             headers: Auth.getHeaders()
         });
-        
+
         if (!res.ok) {
             console.error('Failed to load submission');
             alert("Could not load the submission.");
@@ -42,7 +42,7 @@ async function loadResult(id) {
         }
 
         const data = await res.json();
-        
+
         document.getElementById('loading-spinner').classList.add('hidden');
 
         // Check if evaluating
@@ -98,10 +98,10 @@ function getBandDescriptor(score) {
 function setCircleScore(elementId, score) {
     const s = parseFloat(score) || 0;
     const parent = document.getElementById(elementId);
-    
+
     // Set text
     parent.querySelector('.percentage').textContent = s.toFixed(1);
-    
+
     // Set color
     const colorClass = getScoreColorClass(s);
     parent.className = `circle-group ${colorClass}`;
@@ -120,7 +120,7 @@ function setScoreElement(id, score) {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = s.toFixed(1);
-    
+
     // Set color class on card
     const card = el.closest('.criteria-card');
     if (card) {
@@ -146,7 +146,7 @@ function renderResult(data) {
     const overallScore = typeof ai.overall_band !== 'undefined' ? ai.overall_band : 0.0;
     document.getElementById('overall-score').textContent = overallScore.toFixed(1);
     document.getElementById('overall-descriptor').textContent = getBandDescriptor(overallScore);
-    
+
     const overallColor = getOverallColorClass(overallScore);
     document.getElementById('overall-score').closest('.overall-band').classList.remove('score-red', 'score-yellow', 'score-green');
     document.getElementById('overall-score').closest('.overall-band').classList.add(overallColor);
@@ -172,7 +172,7 @@ function renderResult(data) {
 
     setScoreElement('score-pr-val', ai.pronunciation?.score || 0);
     document.getElementById('pr-feedback').textContent = ai.pronunciation?.feedback || 'No feedback available.';
-    
+
     if (ai.pronunciation?.weaknesses) {
         document.getElementById('pr-weaknesses').textContent = ai.pronunciation.weaknesses;
         document.getElementById('pr-weakness-wrap').classList.remove('hidden');
@@ -180,8 +180,8 @@ function renderResult(data) {
 
     // Audio & Transcript
     const audio = document.getElementById('res-audio');
-    audio.src = Auth.API_BASE.replace('/api/v1', '') + data.audio_url; 
-    
+    audio.src = Auth.API_BASE.replace('/api/v1', '') + data.audio_url;
+
     document.getElementById('res-transcript').textContent = data.transcript || 'No transcript generated.';
 
     // Bottom Feedback (Mistakes & Suggestions)
