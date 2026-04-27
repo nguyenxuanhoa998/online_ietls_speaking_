@@ -158,7 +158,7 @@ async function openSubmission(submissionId) {
 
     // Audio
     const audio = document.getElementById('review-audio');
-    audio.src = Auth.API_BASE.replace('/api', '') + data.audio_url;
+    audio.src = data.audio_url.startsWith('http') ? data.audio_url : Auth.API_BASE.replace('/api', '') + data.audio_url;
     document.getElementById('review-audio-meta').textContent = `submission_${data.id}_${data.question?.part || ''}.webm`;
 
     // Transcript

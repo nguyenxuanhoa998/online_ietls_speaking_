@@ -191,7 +191,7 @@ function renderResult(data) {
 
     // Audio & Transcript
     const audio = document.getElementById('res-audio');
-    audio.src = Auth.API_BASE.replace('/api', '') + data.audio_url;
+    audio.src = data.audio_url.startsWith('http') ? data.audio_url : Auth.API_BASE.replace('/api', '') + data.audio_url;
 
     document.getElementById('res-transcript').textContent = data.transcript || 'No transcript generated.';
 
