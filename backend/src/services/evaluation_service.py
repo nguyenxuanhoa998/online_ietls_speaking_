@@ -3,25 +3,25 @@ import os
 import time
 from typing import Optional
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 api_key = os.getenv("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+client = genai.Client(api_key=api_key) if api_key else None
 
-
-def get_gemini_model():
-    return genai.GenerativeModel("models/gemini-2.5-flash")
+GEMINI_MODEL = "gemini-2.5-flash"
 
 
 def generate_question_text(part: str) -> str:
-    model = get_gemini_model()
     prompts = {
         "part1": "Generate a single random IELTS Speaking Part 1 question. It should be a short, conversational question about familiar topics like home, work, study, hobbies, etc. Only return the question text, no introductions.",
         "part2": "Generate a random IELTS Speaking Part 2 cue card question. It should start with 'Describe a...' and include 3-4 bullet points of what to say. Only return the actual cue card text.",
         "part3": "Generate a single random IELTS Speaking Part 3 question. It should be an abstract, analytical question related to broader themes in society. Only return the question text.",
     }
-    response = model.generate_content(prompts[part])
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=prompts[part],
+    )
     return response.text.strip()
 
 
@@ -30,7 +30,6 @@ def evaluate_with_ai(
     question_text: str,
     question_part: str,
 ) -> Optional[dict]:
-    model_ai = get_gemini_model()
     prompt = f"""You are a certified IELTS Speaking examiner. Be strict, objective, and consistent with official IELTS band descriptors.
 
 Evaluate the candidate's response to the following question.
@@ -87,15 +86,16 @@ Return ONLY valid JSON (no explanation outside JSON):
   ]
 }}"""
 
-    max_retries = 3
-    retry_delay = 5
+    max_retries = 5
+    retry_delay = 15
     response = None
 
     for i in range(max_retries):
         try:
-            response = model_ai.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                 ),
             )

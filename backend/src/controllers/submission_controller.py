@@ -75,9 +75,12 @@ async def create_submission(
     if not file.filename.lower().endswith(valid_extensions):
         raise HTTPException(status_code=400, detail="Invalid audio file format")
 
+    upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+
     ext = os.path.splitext(file.filename)[1]
     filename = f"{uuid.uuid4()}{ext}"
-    filepath = os.path.join("uploads", filename)
+    filepath = os.path.join(upload_dir, filename)
 
     with open(filepath, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)

@@ -34,7 +34,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "../frontend")
 SRC_DIR = os.path.join(FRONTEND_DIR, "src")
-UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+UPLOADS_DIR = os.getenv("UPLOAD_DIR", os.path.join(BASE_DIR, "uploads"))
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")

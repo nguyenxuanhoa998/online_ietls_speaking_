@@ -41,7 +41,7 @@ class Submission(Base):
     assigned_teacher_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     audio_file_path = Column(String(500), nullable=False)
     transcript = Column(Text)
-    status = Column(Enum('pending', 'transcribed', 'ai_evaluated', 'completed', name='submission_statuses'), default='pending', nullable=False)
+    status = Column(Enum('pending', 'transcribed', 'ai_evaluated', 'completed', 'failed', name='submission_statuses'), default='pending', nullable=False)
     submitted_at = Column(DateTime, default=func.now(), nullable=False)
 
     user = relationship("User", foreign_keys=[user_id], back_populates="submissions")

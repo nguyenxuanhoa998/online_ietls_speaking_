@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: ielts-speaking-backend
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: uploads
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ielts-speaking-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: ielts-speaking-db
+    plan: free
