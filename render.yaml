@@ -4,13 +4,7 @@ services:
     env: python
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
-    disk:
-      name: uploads
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
-      - key: UPLOAD_DIR
-        value: /var/data/uploads
       - key: DATABASE_URL
         fromDatabase:
           name: ielts-speaking-db
@@ -18,6 +12,12 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: GROQ_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
         sync: false
       - key: SECRET_KEY
         generateValue: true

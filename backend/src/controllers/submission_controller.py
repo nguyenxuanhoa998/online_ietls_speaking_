@@ -1,10 +1,10 @@
 import json
 import math
 import os
-import shutil
-import uuid
 from typing import Optional
 
+import cloudinary
+import cloudinary.uploader
 from fastapi import BackgroundTasks, HTTPException, UploadFile
 from sqlalchemy.orm import Session, joinedload
 
@@ -13,6 +13,12 @@ from src.models.schemas import TeacherReviewPayload
 from src.services.evaluation_service import evaluate_with_ai, generate_question_text
 from src.services.transcription_service import transcribe_audio
 from src.utils.database import SessionLocal
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+)
 
 
 def get_teachers(db: Session):
@@ -75,15 +81,15 @@ async def create_submission(
     if not file.filename.lower().endswith(valid_extensions):
         raise HTTPException(status_code=400, detail="Invalid audio file format")
 
-    upload_dir = os.getenv("UPLOAD_DIR", "uploads")
-    os.makedirs(upload_dir, exist_ok=True)
-
-    ext = os.path.splitext(file.filename)[1]
-    filename = f"{uuid.uuid4()}{ext}"
-    filepath = os.path.join(upload_dir, filename)
-
-    with open(filepath, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
+        result = cloudinary.uploader.upload(
+            file.file,
+            resource_type="video",
+            folder="ielts_audio",
+        )
+        filepath = result["secure_url"]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload audio: {str(e)}")
 
     assigned_teacher_id = None
     if teacher_id:
