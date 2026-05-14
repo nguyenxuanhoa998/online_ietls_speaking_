@@ -214,6 +214,7 @@ def get_submission_detail(submission_id: int, db: Session, current_user: User):
         .options(
             joinedload(Submission.question),
             joinedload(Submission.ai_evaluation),
+            joinedload(Submission.teacher_review),
             joinedload(Submission.user),
             joinedload(Submission.assigned_teacher),
         )
@@ -227,6 +228,17 @@ def get_submission_detail(submission_id: int, db: Session, current_user: User):
     if current_user.role == "student" and submission.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to view this submission")
 
+    tr = submission.teacher_review
+    teacher_review = None
+    if tr:
+        teacher_review = {
+            "teacher_feedback": tr.teacher_feedback,
+            "pronunciation_score": float(tr.pronunciation_score) if tr.pronunciation_score is not None else None,
+            "adjusted_fluency": float(tr.adjusted_fluency) if tr.adjusted_fluency is not None else None,
+            "adjusted_lexical": float(tr.adjusted_lexical) if tr.adjusted_lexical is not None else None,
+            "adjusted_grammar": float(tr.adjusted_grammar) if tr.adjusted_grammar is not None else None,
+            "final_overall_score": float(tr.final_overall_score) if tr.final_overall_score is not None else None,
+        }
 
     return {
         "id": submission.id,
@@ -235,11 +247,12 @@ def get_submission_detail(submission_id: int, db: Session, current_user: User):
             "part": submission.question.part,
             "text": submission.question.question_text,
         },
-        "audio_url": f"/{submission.audio_file_path}",
+        "audio_url": submission.audio_file_path,
         "transcript": submission.transcript,
         "status": submission.status,
         "submitted_at": submission.submitted_at,
         "ai_evaluation": submission.ai_evaluation.raw_llm_response if submission.ai_evaluation else None,
+        "teacher_review": teacher_review,
         "assigned_teacher_id": submission.assigned_teacher_id,
         "assigned_teacher_name": submission.assigned_teacher.full_name if submission.assigned_teacher else None,
     }

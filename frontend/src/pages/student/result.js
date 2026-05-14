@@ -152,10 +152,26 @@ function renderResult(data) {
     document.getElementById('res-question').textContent = `"${data.question.text}"`;
 
     const ai = data.ai_evaluation;
+    const tr = data.teacher_review;
+
+    // Status badge
+    const statusEl = document.getElementById('res-status');
+    if (tr) {
+        statusEl.textContent = 'Reviewed';
+        statusEl.classList.add('status-reviewed');
+    } else {
+        statusEl.textContent = 'Evaluated';
+    }
+
+    // Pick display scores: prefer teacher-adjusted when available
+    const fcScore      = tr?.adjusted_fluency      ?? ai.fluency_coherence?.score ?? 0;
+    const lrScore      = tr?.adjusted_lexical       ?? ai.lexical_resource?.score  ?? 0;
+    const grScore      = tr?.adjusted_grammar       ?? ai.grammar?.score           ?? 0;
+    const prScore      = tr?.pronunciation_score    ?? ai.pronunciation?.score     ?? 0;
+    const overallScore = tr?.final_overall_score    ?? ai.overall_band             ?? 0;
 
     // Overall Band
-    const overallScore = typeof ai.overall_band !== 'undefined' ? ai.overall_band : 0.0;
-    document.getElementById('overall-score').textContent = overallScore.toFixed(1);
+    document.getElementById('overall-score').textContent = parseFloat(overallScore).toFixed(1);
     document.getElementById('overall-descriptor').textContent = getBandDescriptor(overallScore);
 
     const overallColor = getOverallColorClass(overallScore);
@@ -163,25 +179,25 @@ function renderResult(data) {
     document.getElementById('overall-score').closest('.overall-band').classList.add(overallColor);
 
     // Component Scores (Circles)
-    setCircleScore('score-fc', ai.fluency_coherence?.score || 0);
-    setCircleScore('score-lr', ai.lexical_resource?.score || 0);
-    setCircleScore('score-gr', ai.grammar?.score || 0);
-    setCircleScore('score-pr', ai.pronunciation?.score || 0);
+    setCircleScore('score-fc', fcScore);
+    setCircleScore('score-lr', lrScore);
+    setCircleScore('score-gr', grScore);
+    setCircleScore('score-pr', prScore);
 
-    // Detailed Criteria Breakdown
-    setScoreElement('score-fc-val', ai.fluency_coherence?.score || 0);
+    // Detailed Criteria Breakdown (always from AI text; score badge uses teacher score if available)
+    setScoreElement('score-fc-val', fcScore);
     document.getElementById('fc-strengths').textContent = ai.fluency_coherence?.strengths || 'No specific strengths noted.';
     document.getElementById('fc-weaknesses').textContent = ai.fluency_coherence?.weaknesses || 'No specific weaknesses noted.';
 
-    setScoreElement('score-lr-val', ai.lexical_resource?.score || 0);
+    setScoreElement('score-lr-val', lrScore);
     document.getElementById('lr-strengths').textContent = ai.lexical_resource?.strengths || 'No specific strengths noted.';
     document.getElementById('lr-weaknesses').textContent = ai.lexical_resource?.weaknesses || 'No specific weaknesses noted.';
 
-    setScoreElement('score-gr-val', ai.grammar?.score || 0);
+    setScoreElement('score-gr-val', grScore);
     document.getElementById('gr-strengths').textContent = ai.grammar?.strengths || 'No specific strengths noted.';
     document.getElementById('gr-weaknesses').textContent = ai.grammar?.weaknesses || 'No specific weaknesses noted.';
 
-    setScoreElement('score-pr-val', ai.pronunciation?.score || 0);
+    setScoreElement('score-pr-val', prScore);
     document.getElementById('pr-feedback').textContent = ai.pronunciation?.feedback || 'No feedback available.';
 
     if (ai.pronunciation?.weaknesses) {
@@ -195,7 +211,7 @@ function renderResult(data) {
 
     document.getElementById('res-transcript').textContent = data.transcript || 'No transcript generated.';
 
-    // Key Mistakes & Suggestions
+    // Key Mistakes & Suggestions (AI Evaluation card)
     const mistakesList = document.getElementById('res-mistakes');
     const mistakes = ai.key_mistakes || [];
     mistakesList.innerHTML = mistakes.length > 0
@@ -207,4 +223,28 @@ function renderResult(data) {
     suggestionsList.innerHTML = suggestions.length > 0
         ? suggestions.map(m => `<li>${m}</li>`).join('')
         : `<li>Keep practicing!</li>`;
+
+    // Teacher's Review section
+    if (tr) {
+        document.getElementById('teacher-review-section').classList.remove('hidden');
+        document.getElementById('teacher-comment').textContent = tr.teacher_feedback || '';
+
+        const scoreItems = [
+            { label: 'Fluency & Coherence', val: tr.adjusted_fluency,   final: false },
+            { label: 'Lexical Resource',    val: tr.adjusted_lexical,    final: false },
+            { label: 'Grammatical Range',   val: tr.adjusted_grammar,    final: false },
+            { label: 'Pronunciation',       val: tr.pronunciation_score, final: false },
+            { label: 'Final Overall Band',  val: tr.final_overall_score, final: true  },
+        ].filter(s => s.val != null);
+
+        if (scoreItems.length > 0) {
+            document.getElementById('teacher-scores-grid').innerHTML = scoreItems.map(s => `
+                <div class="tr-score-item${s.final ? ' is-final' : ''}">
+                    <span class="tr-score-label">${s.label}</span>
+                    <span class="tr-score-val">${parseFloat(s.val).toFixed(1)}</span>
+                </div>
+            `).join('');
+            document.getElementById('teacher-scores-wrap').classList.remove('hidden');
+        }
+    }
 }
