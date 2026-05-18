@@ -15,6 +15,9 @@ from src.routes.admin import router as admin_router
 
 Base.metadata.create_all(bind=engine)
 
+from scripts.set_test_user import seed_users
+seed_users()
+
 app = FastAPI()
 
 app.add_middleware(
