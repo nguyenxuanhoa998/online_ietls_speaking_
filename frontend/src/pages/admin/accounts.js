@@ -25,13 +25,7 @@ async function init() {
     await loadAccounts();
     updateSummary();
 
-    // Default status filter to approved as per user request
-    const statusFilter = document.getElementById('status-filter');
-    if (statusFilter) {
-      statusFilter.value = 'approved';
-    }
-    
-    renderTable('', '', 'approved');
+    renderTable('', '', '');
   } catch (err) {
     console.error('Init failed:', err);
   }
@@ -52,14 +46,16 @@ async function loadAccounts() {
 
 function updateSummary() {
   if (!allUsers) return;
-  const pending  = allUsers.filter(u => !u.is_approved);
-  const approved = allUsers.filter(u =>  u.is_approved);
+  const pending  = allUsers.filter(u => u.status === 'pending');
+  const approved = allUsers.filter(u => u.status === 'approved');
+  const rejected = allUsers.filter(u => u.status === 'rejected');
   const students = allUsers.filter(u => u.role === 'student');
-  const teachers = allUsers.filter(u => u.role === 'teacher' && u.is_approved);
+  const teachers = allUsers.filter(u => u.role === 'teacher' && u.status === 'approved');
 
   setText('ac-total',    allUsers.length);
   setText('ac-approved', approved.length);
   setText('ac-pending',  pending.length);
+  setText('ac-rejected', rejected.length);
   setText('ac-students', students.length);
   setText('ac-teachers', teachers.length);
 
@@ -89,7 +85,7 @@ function renderTable(query = '', roleF = '', statusF = '') {
     filtered = filtered.filter(u => (u.full_name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
   }
   if (roleF)   filtered = filtered.filter(u => u.role === roleF);
-  if (statusF) filtered = filtered.filter(u => statusF === 'approved' ? u.is_approved : !u.is_approved);
+  if (statusF) filtered = filtered.filter(u => u.status === statusF);
 
   const tbody = document.getElementById('accounts-tbody');
   if (!tbody) return;
@@ -102,12 +98,15 @@ function renderTable(query = '', roleF = '', statusF = '') {
   tbody.innerHTML = filtered.map(u => {
     const color = avatarColor(u.full_name || 'U');
     const ini   = initials(u.full_name || 'U');
-    const status = u.is_approved
+    const statusBadge = u.status === 'approved'
       ? `<span class="status-approved">✓ Approved</span>`
-      : `<span class="status-pending">⏳ Pending</span>`;
+      : u.status === 'rejected'
+        ? `<span class="status-rejected">✕ Rejected</span>`
+        : `<span class="status-pending">⏳ Pending</span>`;
 
-    const actions = !u.is_approved
-      ? `<button class="btn btn-success btn-sm" onclick="quickApprove(${u.id})">Approve</button>
+    const actions = u.status === 'pending'
+      ? `<button class="btn btn-outline btn-sm" onclick="viewUser(${u.id})">View</button>
+         <button class="btn btn-success btn-sm" onclick="quickApprove(${u.id})">Approve</button>
          <button class="btn btn-danger btn-sm"  onclick="quickReject(${u.id})">Reject</button>`
       : `<button class="btn btn-outline btn-sm" onclick="viewUser(${u.id})">View</button>`;
 
@@ -123,7 +122,7 @@ function renderTable(query = '', roleF = '', statusF = '') {
           </div>
         </td>
         <td><span class="role-badge ${u.role}">${cap(u.role)}</span></td>
-        <td>${status}</td>
+        <td>${statusBadge}</td>
         <td style="color:var(--text-3);font-size:13px;">${u.submissions ?? 0}</td>
         <td style="color:var(--text-3);font-size:13px;">${fmtDate(u.created_at)}</td>
         <td><div class="td-actions">${actions}</div></td>
@@ -150,26 +149,25 @@ async function quickApprove(userId) {
     const res = await fetch(`${Auth.API_BASE}/v1/admin/users/${userId}/approve`, { method:'POST', headers: Auth.getHeaders() });
     if (!res.ok) throw new Error();
     const u = allUsers.find(u => u.id === userId);
-    if (u) { u.is_approved = true; showToast(`${u.full_name} approved.`, 'success'); }
+    if (u) { u.status = 'approved'; showToast(`${u.full_name} approved.`, 'success'); }
   } catch {
     showToast('Failed to approve account.', 'error');
   }
-  updateSummary(); 
+  updateSummary();
   handleFilter();
 }
 
 async function quickReject(userId) {
-  if (!confirm('Reject and remove this account?')) return;
+  if (!confirm('Reject this account?')) return;
   try {
     const res = await fetch(`${Auth.API_BASE}/v1/admin/users/${userId}/reject`, { method:'DELETE', headers: Auth.getHeaders() });
     if (!res.ok) throw new Error();
     const u = allUsers.find(u => u.id === userId);
-    if (u) showToast(`${u.full_name} rejected.`, 'error');
-    allUsers = allUsers.filter(u => u.id !== userId);
+    if (u) { u.status = 'rejected'; showToast(`${u.full_name} rejected.`, 'error'); }
   } catch {
     showToast('Failed to reject account.', 'error');
   }
-  updateSummary(); 
+  updateSummary();
   handleFilter();
 }
 
@@ -179,8 +177,8 @@ function viewUser(userId) {
 }
 
 function exportAccounts() {
-  const rows = [['Name','Email','Role','Approved','Registered']];
-  allUsers.forEach(u => rows.push([u.full_name, u.email, u.role, u.is_approved?'Yes':'No', fmtDate(u.created_at)]));
+  const rows = [['Name','Email','Role','Status','Registered']];
+  allUsers.forEach(u => rows.push([u.full_name, u.email, u.role, u.status || 'pending', fmtDate(u.created_at)]));
   const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);

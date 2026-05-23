@@ -21,11 +21,11 @@ def get_admin_stats(db: Session, admin: User):
 
     total_users = db.query(User).count()
     total_submissions = db.query(Submission).count()
-    students = db.query(User).filter(User.role == "student", User.is_approved == True).count()
-    teachers = db.query(User).filter(User.role == "teacher", User.is_approved == True).count()
-    admins = db.query(User).filter(User.role == "admin", User.is_approved == True).count()
-    teachers_pending = db.query(User).filter(User.role == "teacher", User.is_approved == False).count()
-    admins_pending = db.query(User).filter(User.role == "admin", User.is_approved == False).count()
+    students = db.query(User).filter(User.role == "student", User.status == "approved").count()
+    teachers = db.query(User).filter(User.role == "teacher", User.status == "approved").count()
+    admins = db.query(User).filter(User.role == "admin", User.status == "approved").count()
+    teachers_pending = db.query(User).filter(User.role == "teacher", User.status == "pending").count()
+    admins_pending = db.query(User).filter(User.role == "admin", User.status == "pending").count()
     users_this_week = db.query(User).filter(User.created_at >= week_ago).count()
     students_this_week = db.query(User).filter(User.role == "student", User.created_at >= week_ago).count()
     submissions_month = db.query(Submission).filter(Submission.submitted_at >= month_ago).count()
@@ -55,14 +55,14 @@ def get_admin_stats(db: Session, admin: User):
 
 
 def get_all_users(db: Session, admin: User):
-    users = db.query(User).order_by(User.is_approved.asc(), User.created_at.desc()).all()
+    users = db.query(User).order_by(User.created_at.desc()).all()
     return [
         {
             "id": u.id,
             "full_name": u.full_name,
             "email": u.email,
             "role": u.role,
-            "is_approved": u.is_approved,
+            "status": u.status,
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "institution": "",
         }
@@ -74,9 +74,9 @@ def approve_user(user_id: int, db: Session, admin: User):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if user.is_approved:
+    if user.status == "approved":
         raise HTTPException(status_code=400, detail="User already approved")
-    user.is_approved = True
+    user.status = "approved"
     db.commit()
     return {"message": f"User {user.full_name} approved successfully"}
 
@@ -85,11 +85,11 @@ def reject_user(user_id: int, db: Session, admin: User):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if user.is_approved:
+    if user.status == "approved":
         raise HTTPException(status_code=400, detail="Cannot reject an already-approved user")
-    db.delete(user)
+    user.status = "rejected"
     db.commit()
-    return {"message": f"User {user.full_name} rejected and removed"}
+    return {"message": f"User {user.full_name} rejected"}
 
 
 def get_analytics(days: int, db: Session, admin: User):
@@ -223,7 +223,7 @@ def get_activity(limit: int, db: Session, admin: User):
 
     recent_reg = (
         db.query(User)
-        .filter(User.is_approved == False)
+        .filter(User.status == "pending")
         .order_by(User.created_at.desc())
         .limit(5)
         .all()

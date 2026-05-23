@@ -21,7 +21,7 @@ def seed_users():
             "email": "admin@example.com",
             "password": "password123",
             "role": "admin",
-            "is_approved": True
+            "status": "approved"
         },
         # Teachers
         {
@@ -29,21 +29,21 @@ def seed_users():
             "email": "teacher1@example.com",
             "password": "password123",
             "role": "teacher",
-            "is_approved": True
+            "status": "approved"
         },
         {
             "full_name": "Teacher Two",
             "email": "teacher2@example.com",
             "password": "password123",
             "role": "teacher",
-            "is_approved": True
+            "status": "approved"
         },
         {
             "full_name": "Teacher Three",
             "email": "teacher3@example.com",
             "password": "password123",
             "role": "teacher",
-            "is_approved": True
+            "status": "approved"
         },
         # Students
         {
@@ -51,21 +51,21 @@ def seed_users():
             "email": "studenta@example.com",
             "password": "password123",
             "role": "student",
-            "is_approved": True
+            "status": "approved"
         },
         {
             "full_name": "Student B",
             "email": "studentb@example.com",
             "password": "password123",
             "role": "student",
-            "is_approved": True
+            "status": "approved"
         },
         {
             "full_name": "Student C",
             "email": "studentc@example.com",
             "password": "password123",
             "role": "student",
-            "is_approved": True
+            "status": "approved"
         }
     ]
 
@@ -82,7 +82,7 @@ def seed_users():
             email=user_data["email"],
             password_hash=hashed_password,
             role=user_data["role"],
-            is_approved=user_data["is_approved"]
+            status=user_data["status"]
         )
         db.add(new_user)
         print(f"Added {user_data['role']}: {user_data['email']}")

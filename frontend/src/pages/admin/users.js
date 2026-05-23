@@ -86,10 +86,10 @@ async function loadUsers() {
 /* ── Count tabs ───────────────────────────────────── */
 function updateCounts() {
   if (!allUsers) return;
-  const pending  = allUsers.filter(u => !u.is_approved);
-  const students = allUsers.filter(u => u.role === 'student' && u.is_approved);
-  const teachers = allUsers.filter(u => u.role === 'teacher' && u.is_approved);
-  const admins   = allUsers.filter(u => u.role === 'admin'   && u.is_approved);
+  const pending  = allUsers.filter(u => u.status === 'pending');
+  const students = allUsers.filter(u => u.role === 'student' && u.status === 'approved');
+  const teachers = allUsers.filter(u => u.role === 'teacher' && u.status === 'approved');
+  const admins   = allUsers.filter(u => u.role === 'admin'   && u.status === 'approved');
 
   setText('count-pending',  pending.length);
   setText('count-students', students.length);
@@ -135,10 +135,10 @@ function renderTab(tab, query = '') {
   let filtered;
 
   switch (tab) {
-    case 'pending':  filtered = allUsers.filter(u => !u.is_approved); break;
-    case 'students': filtered = allUsers.filter(u => u.role === 'student' && u.is_approved); break;
-    case 'teachers': filtered = allUsers.filter(u => u.role === 'teacher' && u.is_approved); break;
-    case 'admins':   filtered = allUsers.filter(u => u.role === 'admin'   && u.is_approved); break;
+    case 'pending':  filtered = allUsers.filter(u => u.status === 'pending'); break;
+    case 'students': filtered = allUsers.filter(u => u.role === 'student' && u.status === 'approved'); break;
+    case 'teachers': filtered = allUsers.filter(u => u.role === 'teacher' && u.status === 'approved'); break;
+    case 'admins':   filtered = allUsers.filter(u => u.role === 'admin'   && u.status === 'approved'); break;
     default:         filtered = allUsers;
   }
 
@@ -160,13 +160,26 @@ function renderTab(tab, query = '') {
   }
 
   const isPending = (tab === 'pending');
+  const fmtDateTime = str => {
+    if (!str) return '—';
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return '—';
+    return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}<br><small>${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</small>`;
+  };
   tbody.innerHTML = filtered.map(u => {
     const color = avatarColor(u.full_name);
     const ini   = initials(u.full_name);
     const roleBadge = `<span class="role-badge ${u.role}">${cap(u.role)}</span>`;
 
+    const statusBadge = u.status === 'pending'
+      ? `<span class="status-pending">⏳ Pending</span>`
+      : u.status === 'approved'
+        ? `<span class="status-approved">✓ Approved</span>`
+        : `<span class="status-rejected">✕ Rejected</span>`;
+
     const actions = isPending
-      ? `<button class="btn btn-success btn-sm" onclick="openApproveModal(${u.id})">Approve</button>
+      ? `<button class="btn btn-outline btn-sm" onclick="viewUser(${u.id})">View</button>
+         <button class="btn btn-success btn-sm" onclick="openApproveModal(${u.id})">Approve</button>
          <button class="btn btn-danger btn-sm"  onclick="openRejectModal(${u.id})">Reject</button>`
       : `<button class="btn btn-outline btn-sm" onclick="viewUser(${u.id})">View</button>`;
 
@@ -182,8 +195,8 @@ function renderTab(tab, query = '') {
           </div>
         </td>
         <td>${roleBadge}</td>
-        <td style="color:var(--text-3);font-size:13px;">${fmtDate(u.created_at)}</td>
-        <td style="color:var(--text-3);font-size:13px;">${esc(u.institution || '—')}</td>
+        <td style="color:var(--text-3);font-size:13px;">${fmtDateTime(u.created_at)}</td>
+        <td>${statusBadge}</td>
         <td><div class="td-actions">${actions}</div></td>
       </tr>
     `;
@@ -230,7 +243,7 @@ window.confirmApprove = async function() {
     });
     if (!res.ok) throw new Error('API rejection');
     const u = allUsers.find(u => u.id === pendingAction.userId);
-    if (u) u.is_approved = true;
+    if (u) u.status = 'approved';
     showToast('Account approved successfully.', 'success');
   } catch (err) {
     showToast('Failed to approve account.', 'error');
@@ -285,8 +298,9 @@ window.confirmReject = async function() {
       body: JSON.stringify({ reason }),
     });
     if (!res.ok) throw new Error('API rejection');
-    allUsers = allUsers.filter(u => u.id !== pendingAction.userId);
-    showToast('Account rejected and removed.', 'error');
+    const u = allUsers.find(u => u.id === pendingAction.userId);
+    if (u) u.status = 'rejected';
+    showToast('Account rejected.', 'error');
   } catch {
     showToast('Failed to reject account.', 'error');
   }
@@ -310,8 +324,8 @@ window.viewUser = function(userId) {
 
 /* ── Export ───────────────────────────────────────── */
 window.exportUsers = function() {
-  const rows = [['Name','Email','Role','Approved','Registered','Institution']];
-  allUsers.forEach(u => rows.push([u.full_name, u.email, u.role, u.is_approved ? 'Yes' : 'No', fmtDate(u.created_at), u.institution || '']));
+  const rows = [['Name','Email','Role','Status','Registered','Institution']];
+  allUsers.forEach(u => rows.push([u.full_name, u.email, u.role, u.status || 'pending', fmtDate(u.created_at), u.institution || '']));
   const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);

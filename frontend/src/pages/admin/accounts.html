@@ -69,9 +69,10 @@
       </select>
       <!-- Filter by status -->
       <select id="status-filter" onchange="handleFilter()" style="padding:7px 10px;border:1px solid var(--gray-border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;cursor:pointer;background:#fff;color:var(--text-1);">
-        <option value="">All statuses</option>
+        <option value="">All status</option>
+        <option value="pending">Pending approval</option>
         <option value="approved">Approved</option>
-        <option value="pending">Pending</option>
+        <option value="rejected">Rejected</option>
       </select>
       <button class="btn btn-outline btn-sm" onclick="exportAccounts()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

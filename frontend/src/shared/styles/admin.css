@@ -221,6 +221,7 @@
 /* ── Status text ───────────────────────────────────────────────── */
 .status-approved { color: #276749; font-weight: 600; font-size: 12px; }
 .status-pending  { color: var(--warning); font-weight: 600; font-size: 12px; }
+.status-rejected { color: #DC2626; font-weight: 600; font-size: 12px; }
 
 /* ── Responsive ────────────────────────────────────────────────── */
 @media (max-width: 900px) {

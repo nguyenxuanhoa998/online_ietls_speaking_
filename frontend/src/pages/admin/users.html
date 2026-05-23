@@ -105,7 +105,7 @@
           <th>USER</th>
           <th>ROLE</th>
           <th>REGISTERED</th>
-          <th>INSTITUTION</th>
+          <th>STATUS</th>
           <th>ACTIONS</th>
         </tr>
       </thead>
@@ -122,12 +122,13 @@
     <div class="modal-header">
       <h2 class="modal-title">Approve account</h2>
       <button class="modal-close" onclick="closeModal('approve-modal')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
     </div>
     <p class="modal-desc">The user will receive an email notification and can log in immediately.</p>
+    <hr class="modal-divider">
     <div class="modal-user-card" id="approve-user-card">
       <div class="modal-avatar" id="approve-avatar">VL</div>
       <div>
@@ -148,26 +149,23 @@
     <div class="modal-header">
       <h2 class="modal-title">Reject account</h2>
       <button class="modal-close" onclick="closeModal('reject-modal')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
     </div>
-    <p class="modal-desc" style="color:#9B1C1C;">This action will permanently delete the account. The user will be notified.</p>
-    <div class="modal-user-card" id="reject-user-card" style="border-color:#FCA5A5;">
+    <p class="modal-desc">Are you sure you want to reject this user?</p>
+    <hr class="modal-divider">
+    <div class="modal-user-card" id="reject-user-card">
       <div class="modal-avatar" id="reject-avatar" style="background:#E53E3E;">VL</div>
       <div>
         <div class="modal-user-name" id="reject-name">—</div>
         <div class="modal-user-meta" id="reject-meta">—</div>
       </div>
     </div>
-    <div style="margin-bottom:16px;">
-      <label style="font-size:13px;font-weight:600;color:var(--text-2);display:block;margin-bottom:6px;">Reason (optional)</label>
-      <textarea id="reject-reason" class="feedback-textarea" placeholder="Enter reason for rejection..." style="min-height:80px;"></textarea>
-    </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal('reject-modal')">Cancel</button>
-      <button class="btn btn-danger" id="reject-confirm-btn" onclick="confirmReject()">Reject account</button>
+      <button class="btn btn-danger" id="reject-confirm-btn" onclick="confirmReject()">Reject</button>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, ForeignKey, Text, Numeric, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Text, Numeric, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -13,7 +13,7 @@ class User(Base):
     email = Column(String(150), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum('student', 'teacher', 'admin', name='user_roles'), nullable=False)
-    is_approved = Column(Boolean, default=False, nullable=False)
+    status = Column(Enum('pending', 'approved', 'rejected', name='user_status'), default='pending', nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
 
     submissions = relationship("Submission", back_populates="user", foreign_keys="Submission.user_id")

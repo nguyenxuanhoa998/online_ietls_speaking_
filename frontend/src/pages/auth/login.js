@@ -70,8 +70,6 @@ function checkStrength(pw) {
 function selectRole(radio) {
   document.querySelectorAll('#panel-register .role-opt').forEach(o => o.classList.remove('selected'));
   radio.closest('.role-opt').classList.add('selected');
-  document.getElementById('teacher-notice')
-    .classList.toggle('show', radio.value === 'teacher');
 }
 
 function selectLoginRole(radio) {

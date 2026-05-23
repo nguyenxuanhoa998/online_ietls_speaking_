@@ -25,7 +25,7 @@ def register(user_data: UserRegister, db: Session):
         email=user_data.email,
         password_hash=get_password_hash(user_data.password),
         role=user_data.role,
-        is_approved=(user_data.role in ["student", "admin"]),
+        status='pending',
     )
     db.add(new_user)
     db.commit()
@@ -41,8 +41,10 @@ def login(user_data: UserLogin, db: Session):
     if user_data.role and user.role != user_data.role:
         raise HTTPException(status_code=401, detail=f"User is not a {user_data.role}")
 
-    if not user.is_approved:
+    if user.status == 'pending':
         raise HTTPException(status_code=403, detail="Account pending admin approval")
+    if user.status == 'rejected':
+        raise HTTPException(status_code=403, detail="Account has been rejected")
 
     access_token = create_access_token(
         data={"sub": user.email, "role": user.role},
@@ -57,5 +59,5 @@ def get_me(current_user: User):
         "full_name": current_user.full_name,
         "email": current_user.email,
         "role": current_user.role,
-        "is_approved": current_user.is_approved,
+        "status": current_user.status,
     }
