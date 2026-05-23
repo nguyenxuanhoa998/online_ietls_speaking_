@@ -13,6 +13,9 @@ from src.routes.auth import router as auth_router
 from src.routes.submissions import router as submissions_router
 from src.routes.admin import router as admin_router
 
+from scripts.migrate_status import run_migration
+run_migration(engine)
+
 Base.metadata.create_all(bind=engine)
 
 from scripts.set_test_user import seed_users

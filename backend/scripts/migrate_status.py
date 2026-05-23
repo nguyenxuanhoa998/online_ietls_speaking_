@@ -1,39 +1,35 @@
 """
-Migration: replace is_approved (Boolean) with status (ENUM pending/approved/rejected)
-Run once: python scripts/migrate_status.py
+Migration: replace is_approved (Boolean) with status VARCHAR(20).
+Runs automatically on startup. Compatible with MySQL and PostgreSQL.
 """
-from dotenv import load_dotenv
-load_dotenv()
+from sqlalchemy import inspect, text
 
-from src.utils.database import engine
-from sqlalchemy import text
 
-with engine.connect() as conn:
-    # Check if status column already exists
-    result = conn.execute(text(
-        "SELECT COUNT(*) FROM information_schema.columns "
-        "WHERE table_schema = DATABASE() "
-        "AND table_name = 'users' "
-        "AND column_name = 'status'"
-    ))
-    status_exists = result.scalar() > 0
+def run_migration(engine):
+    inspector = inspect(engine)
 
-    if status_exists:
-        print("Column 'status' already exists. Skipping migration.")
-    else:
-        # Add status column
-        conn.execute(text(
-            "ALTER TABLE users "
-            "ADD COLUMN status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending'"
-        ))
+    if 'users' not in inspector.get_table_names():
+        return  # fresh DB — create_all will build it correctly
 
-        # Migrate data: is_approved=1 → approved, is_approved=0 → pending
-        conn.execute(text(
-            "UPDATE users SET status = CASE WHEN is_approved = 1 THEN 'approved' ELSE 'pending' END"
-        ))
+    columns = {col['name'] for col in inspector.get_columns('users')}
 
-        # Drop old column
-        conn.execute(text("ALTER TABLE users DROP COLUMN is_approved"))
+    if 'status' in columns and 'is_approved' not in columns:
+        print("migrate_status: already done, skipping.")
+        return
 
-        conn.commit()
-        print("Migration complete: is_approved → status")
+    with engine.begin() as conn:
+        if 'status' not in columns:
+            conn.execute(text(
+                "ALTER TABLE users ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'pending'"
+            ))
+            print("migrate_status: added 'status' column.")
+
+        if 'is_approved' in columns:
+            conn.execute(text(
+                "UPDATE users SET status = "
+                "CASE WHEN is_approved IN (1, true, 't', 'TRUE') THEN 'approved' ELSE 'pending' END"
+            ))
+            conn.execute(text("ALTER TABLE users DROP COLUMN is_approved"))
+            print("migrate_status: migrated data, dropped 'is_approved'.")
+
+    print("migrate_status: complete.")
